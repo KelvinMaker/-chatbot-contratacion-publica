@@ -28,7 +28,7 @@ exports.handler = async (event) => {
 
     // Llamar a Claude con contexto sobre contratación pública
     const response = await client.messages.create({
-     model: "claude-3-sonnet-20240229",
+     model: "claude-opus-4-1",
       max_tokens: 1024,
       system: `Eres un experto en contratación pública colombiana. Respondes preguntas sobre procesos de contratación en Colombia, regulaciones, leyes (Ley 80 de 1993, Ley 1150 de 2007), SECOP II, y todas las modalidades de contratación.
 
