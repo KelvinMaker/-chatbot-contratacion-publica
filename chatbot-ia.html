@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Inteligente - Contratación Pública</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            height: 90vh;
+            max-height: 800px;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #4ade80;
+            border-radius: 50%;
+            margin-left: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message.bot {
+            justify-content: flex-start;
+        }
+
+        .message-content {
+            max-width: 85%;
+            padding: 12px 15px;
+            border-radius: 15px;
+            word-wrap: break-word;
+            line-height: 1.5;
+        }
+
+        .user .message-content {
+            background: #667eea;
+            color: white;
+            border-radius: 15px 15px 0 15px;
+        }
+
+        .bot .message-content {
+            background: #e9ecef;
+            color: #333;
+            border-radius: 15px 15px 15px 0;
+        }
+
+        .input-area {
+            padding: 15px;
+            border-top: 1px solid #e9ecef;
+            background: white;
+            display: flex;
+            gap: 10px;
+        }
+
+        #input-field {
+            flex: 1;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            padding: 12px 20px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        #input-field:focus {
+            border-color: #667eea;
+        }
+
+        #input-field:disabled {
+            background: #f0f0f0;
+            cursor: not-allowed;
+        }
+
+        #send-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        #send-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+        }
+
+        #send-btn:active:not(:disabled) {
+            transform: scale(0.95);
+        }
+
+        #send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: #999;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                opacity: 0.3;
+                transform: translateY(0);
+            }
+            30% {
+                opacity: 1;
+                transform: translateY(-10px);
+            }
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #667eea;
+            padding: 12px 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-size: 13px;
+            color: #555;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 12px 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-size: 13px;
+            color: #991b1b;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .message-content {
+                max-width: 95%;
+            }
+
+            #input-field {
+                font-size: 16px;
+            }
+        }
+
+        .setup-guide {
+            padding: 20px;
+            text-align: center;
+            color: #666;
+        }
+
+        .setup-guide h2 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .code-block {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Chatbot Inteligente <span class="status-indicator"></span></h1>
+            <p>Contratación Pública Colombiana - Powered by Claude AI</p>
+        </div>
+
+        <div class="chat-messages" id="chat-messages">
+            <div class="message bot">
+                <div class="message-content">
+                    <strong>¡Hola! 👋</strong><br>
+                    Soy un chatbot inteligente con acceso a Claude AI. Puedo responder <strong>cualquier pregunta</strong> sobre contratación pública en Colombia.
+                    <div class="info-box">
+                        💡 <strong>Ejemplos:</strong> "¿Cuáles son los pasos para ganar una licitación?", "¿Qué documentos necesito?", "¿Cómo funciona SECOP II?"
+                    </div>
+                </div>
+            </div>
+            <div class="message bot" id="setup-message">
+                <div class="message-content">
+                    <strong>⚙️ Configuración necesaria</strong><br>
+                    <div class="info-box">
+                        1. Obtén tu <strong>Claude API Key</strong> en https://console.anthropic.com<br>
+                        2. Guárdala en las variables de entorno de Netlify<br>
+                        3. ¡Listo! El chatbot funcionará automáticamente<br><br>
+                        <strong>De momento, prueba preguntando algo</strong> (requiere setup en Netlify)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-area">
+            <input
+                type="text"
+                id="input-field"
+                placeholder="Escribe tu pregunta..."
+                autocomplete="off"
+            >
+            <button id="send-btn">📤</button>
+        </div>
+    </div>
+
+    <script>
+        const chatMessages = document.getElementById('chat-messages');
+        const inputField = document.getElementById('input-field');
+        const sendBtn = document.getElementById('send-btn');
+        const setupMessage = document.getElementById('setup-message');
+
+        // Función para agregar mensaje
+        function agregarMensaje(contenido, tipo) {
+            const mensaje = document.createElement('div');
+            mensaje.className = `message ${tipo}`;
+
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+
+            if (typeof contenido === 'string') {
+                messageContent.textContent = contenido;
+            } else {
+                messageContent.appendChild(contenido);
+            }
+
+            mensaje.appendChild(messageContent);
+            chatMessages.appendChild(mensaje);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Función para mostrar indicador de escritura
+        function mostrarIndicadorEscritura() {
+            const mensaje = document.createElement('div');
+            mensaje.className = 'message bot';
+            mensaje.id = 'typing-indicator';
+
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content typing-indicator';
+            messageContent.innerHTML = '<span></span><span></span><span></span>';
+
+            mensaje.appendChild(messageContent);
+            chatMessages.appendChild(mensaje);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Función para eliminar indicador de escritura
+        function eliminarIndicadorEscritura() {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+
+        // Función para enviar mensaje a Claude
+        async function enviarAlChatbot(pregunta) {
+            try {
+                // Llamar a la función Netlify
+                const respuesta = await fetch('/.netlify/functions/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        mensaje: pregunta
+                    })
+                });
+
+                if (!respuesta.ok) {
+                    throw new Error(`Error: ${respuesta.status}`);
+                }
+
+                const datos = await respuesta.json();
+                return datos.respuesta;
+
+            } catch (error) {
+                console.error('Error:', error);
+
+                if (error.message.includes('404')) {
+                    return "⚠️ El backend no está configurado.\n\nPara usar este chatbot inteligente:\n1. Deploy en Netlify\n2. Agrega tu CLAUDE_API_KEY en variables de entorno\n3. ¡Listo!\n\nDe momento, usa la versión local: chatbot-COMPLETO.html";
+                } else if (error.message.includes('429')) {
+                    return "⏱️ Demasiadas solicitudes. Espera un momento e intenta de nuevo.";
+                } else {
+                    return "❌ Error al conectar con Claude. Verifica tu configuración.";
+                }
+            }
+        }
+
+        // Enviar mensaje
+        async function enviarMensaje() {
+            const texto = inputField.value.trim();
+
+            if (!texto) return;
+
+            // Desabilitar input durante la respuesta
+            inputField.disabled = true;
+            sendBtn.disabled = true;
+
+            // Agregar mensaje del usuario
+            agregarMensaje(texto, 'user');
+            inputField.value = '';
+
+            // Mostrar indicador de escritura
+            mostrarIndicadorEscritura();
+
+            // Obtener respuesta de Claude
+            const respuesta = await enviarAlChatbot(texto);
+
+            eliminarIndicadorEscritura();
+            agregarMensaje(respuesta, 'bot');
+
+            // Rehabilitar input
+            inputField.disabled = false;
+            sendBtn.disabled = false;
+            inputField.focus();
+        }
+
+        // Event listeners
+        sendBtn.addEventListener('click', enviarMensaje);
+        inputField.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !inputField.disabled) {
+                enviarMensaje();
+            }
+        });
+
+        // Focus en el input
+        inputField.focus();
+    </script>
+</body>
+</html>

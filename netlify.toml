@@ -1,0 +1,14 @@
+# Configuración para Netlify
+
+[build]
+command = "npm install"
+functions = "netlify/functions"
+publish = "."
+
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200
+
+# Variables de entorno (agregar en Netlify UI)
+# CLAUDE_API_KEY = tu_api_key_aqui

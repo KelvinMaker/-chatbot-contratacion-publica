@@ -1,0 +1,22 @@
+{
+  "name": "chatbot-contratacion-publica",
+  "version": "2.0.0",
+  "description": "Chatbot inteligente sobre contratación pública colombiana",
+  "main": "chatbot-ia.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "chatbot",
+    "contratación",
+    "público",
+    "colombia",
+    "claude",
+    "ai"
+  ],
+  "author": "Kelvin Maker",
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.24.3"
+  }
+}
